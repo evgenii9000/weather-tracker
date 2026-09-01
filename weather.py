@@ -1,18 +1,17 @@
 import requests
 from datetime import datetime
 
-city = "Moscow"  # можешь заменить на свой город на латинице, например "London"
+cities = ["Chisinau", "Bucharest", "London", "Stockholm"]
 
-url = f"https://wttr.in/{city}?format=%t+%w+%h"
-
-try:
-    response = requests.get(url, timeout=10)
-    if response.status_code == 200:
-        weather = response.text.strip()
-        with open("weather.log", "a", encoding="utf-8") as f:
-            f.write(f"{datetime.now().isoformat()} | {weather}\n")
-        print("OK")
-    else:
-        print("Error")
-except Exception as e:
-    print("Fail")
+with open("weather.log", "a", encoding="utf-8") as log_file:
+    for city in cities:
+        url = f"https://wttr.in/{city}?format=%t+%w+%h"
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                weather = response.text.strip()
+                log_file.write(f"{datetime.now().isoformat()} | {city} | {weather}\n")
+            else:
+                log_file.write(f"{datetime.now().isoformat()} | {city} | ERROR\n")
+        except Exception:
+            log_file.write(f"{datetime.now().isoformat()} | {city} | FAIL\n")
