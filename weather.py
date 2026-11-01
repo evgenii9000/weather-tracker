@@ -1,24 +1,17 @@
 import requests
-from datetime import datetime, timezone
+from datetime import datetime
 
-CITIES = ["Chisinau", "Bucharest", "London", "Stockholm"]
+cities = ["Chisinau", "Bucharest", "London", "Stockholm"]
 
-def main():
-    with open("weather.log", "a", encoding="utf-8") as log_file:
-        for city in CITIES:
-            url = f"https://wttr.in/{city}?format=%t+%w+%h"
-            ts = datetime.now(timezone.utc).isoformat()
-            try:
-                response = requests.get(url, timeout=10)
-                response.raise_for_status()
+with open("weather.log", "a", encoding="utf-8") as log_file:
+    for city in cities:
+        url = f"https://wttr.in/{city}?format=%t+%w+%h"
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
                 weather = response.text.strip()
-
-                if not weather or "Unknown location" in weather:
-                    raise ValueError("bad weather response")
-
-                log_file.write(f"{ts} | {city} | {weather}\n")
-            except Exception as e:
-                log_file.write(f"{ts} | {city} | ERROR: {e}\n")
-
-if __name__ == "__main__":
-    main()
+                log_file.write(f"{datetime.now().isoformat()} | {city} | {weather}\n")
+            else:
+                log_file.write(f"{datetime.now().isoformat()} | {city} | ERROR\n")
+        except Exception:
+            log_file.write(f"{datetime.now().isoformat()} | {city} | FAIL\n")
